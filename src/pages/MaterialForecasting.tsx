@@ -21,6 +21,13 @@ import {
   SelectTrigger,
   SelectValue 
 } from "@/components/ui/select";
+import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, ScatterChart, Scatter } from "recharts";
 
 const materialData = [
@@ -74,6 +81,8 @@ const MaterialForecasting = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterUrgency, setFilterUrgency] = useState("all");
+  const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const filteredMaterials = materialData.filter(material => {
     const matchesSearch = material.material.toLowerCase().includes(searchTerm.toLowerCase());
@@ -268,7 +277,15 @@ const MaterialForecasting = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-bold">₹{(material.estimatedCost / 100000).toFixed(1)}L</p>
-                        <Button variant="ghost" size="sm" className="mt-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="mt-2"
+                          onClick={() => {
+                            setSelectedMaterial(material);
+                            setIsDialogOpen(true);
+                          }}
+                        >
                           <Eye className="w-4 h-4 mr-1" />
                           View Details
                         </Button>
@@ -281,110 +298,139 @@ const MaterialForecasting = () => {
           </Card>
         </motion.div>
 
-          {/* Analytics Panel */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-            className="space-y-6"
-          >
-            {/* Cost Breakdown */}
-            <Card className="card-3d">
-              <CardHeader>
-                <CardTitle>Cost Analysis</CardTitle>
-                <CardDescription>Budget breakdown by category</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={200}>
-                  <PieChart>
-                    <Pie
-                      data={costAnalysisData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={40}
-                      outerRadius={80}
-                      dataKey="cost"
-                    >
-                      {costAnalysisData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value: number) => `₹${(value / 10000000).toFixed(1)}Cr`} />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="space-y-2 mt-4">
-                  {costAnalysisData.map((item) => (
-                    <div key={item.category} className="flex items-center justify-between text-sm">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                        <span>{item.category}</span>
-                      </div>
-                      <span className="font-medium">₹{(item.cost / 10000000).toFixed(1)}Cr</span>
+        {/* Analytics Panel */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+          className="space-y-6"
+        >
+          {/* Cost Breakdown */}
+          <Card className="card-3d">
+            <CardHeader>
+              <CardTitle>Cost Analysis</CardTitle>
+              <CardDescription>Budget breakdown by category</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={costAnalysisData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={80}
+                    dataKey="cost"
+                  >
+                    {costAnalysisData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value: number) => `₹${(value / 10000000).toFixed(1)}Cr`} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="space-y-2 mt-4">
+                {costAnalysisData.map((item) => (
+                  <div key={item.category} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                      <span>{item.category}</span>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    <span className="font-medium">₹{(item.cost / 10000000).toFixed(1)}Cr</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Prediction Accuracy */}
-            <Card className="card-3d">
-              <CardHeader>
-                <CardTitle>Prediction Accuracy</CardTitle>
-                <CardDescription>6-month forecast vs actual</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={trendData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
-                    <YAxis stroke="hsl(var(--muted-foreground))" />
-                    <Tooltip formatter={(value: number) => `₹${value}L`} />
-                    <Line type="monotone" dataKey="predicted" stroke="#3b82f6" strokeWidth={2} name="Predicted" />
-                    <Line type="monotone" dataKey="actual" stroke="#10b981" strokeWidth={2} name="Actual" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+          {/* Prediction Accuracy */}
+          <Card className="card-3d">
+            <CardHeader>
+              <CardTitle>Prediction Accuracy</CardTitle>
+              <CardDescription>6-month forecast vs actual</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={trendData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                  <YAxis stroke="hsl(var(--muted-foreground))" />
+                  <Tooltip formatter={(value: number) => `₹${value}L`} />
+                  <Line type="monotone" dataKey="predicted" stroke="#3b82f6" strokeWidth={2} name="Predicted" />
+                  <Line type="monotone" dataKey="actual" stroke="#10b981" strokeWidth={2} name="Actual" />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
 
-            {/* Supplier Performance */}
-            <Card className="card-3d">
-              <CardHeader>
-                <CardTitle>Supplier Performance</CardTitle>
-                <CardDescription>Multi-dimensional supplier analysis</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={250}>
-                  <ScatterChart data={supplierAnalysis}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis 
-                      dataKey="cost" 
-                      type="number" 
-                      domain={[70, 100]} 
-                      name="Cost Efficiency"
-                      stroke="hsl(var(--muted-foreground))"
-                    />
-                    <YAxis 
-                      dataKey="reliability" 
-                      type="number" 
-                      domain={[80, 100]} 
-                      name="Reliability"
-                      stroke="hsl(var(--muted-foreground))"
-                    />
-                    <Tooltip 
-                      cursor={{ strokeDasharray: '3 3' }}
-                      formatter={(value, name) => [value + '%', name]}
-                      labelFormatter={(label) => `Supplier: ${supplierAnalysis.find(s => s.cost === label)?.supplier || ''}`}
-                    />
-                    <Scatter dataKey="delivery" fill="#3b82f6" name="Delivery Performance" />
-                  </ScatterChart>
-                </ResponsiveContainer>
-                <div className="text-xs text-muted-foreground mt-2">
-                  X-axis: Cost Efficiency • Y-axis: Reliability • Bubble size: Delivery Performance
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          {/* Supplier Performance */}
+          <Card className="card-3d">
+            <CardHeader>
+              <CardTitle>Supplier Performance</CardTitle>
+              <CardDescription>Multi-dimensional supplier analysis</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <ScatterChart>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" dataKey="cost" name="Cost Efficiency" unit="%" />
+                  <YAxis type="number" dataKey="reliability" name="Reliability" unit="%" />
+                  <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                  <Scatter name="Suppliers" data={supplierAnalysis} fill="#8B5CF6" />
+                </ScatterChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
+
+      {/* View Details Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{selectedMaterial?.material}</DialogTitle>
+            <DialogDescription>
+              Detailed breakdown of material requirements
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedMaterial && (
+            <div className="space-y-4">
+              <div className="flex justify-between">
+                <span className="font-medium">Quantity</span>
+                <span>{selectedMaterial.quantity} {selectedMaterial.unit}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Estimated Cost</span>
+                <span>₹{selectedMaterial.estimatedCost.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Urgency</span>
+                <Badge
+                  variant="outline"
+                  className={`${
+                    selectedMaterial.urgency === "High"
+                      ? "border-destructive text-destructive"
+                      : selectedMaterial.urgency === "Medium"
+                      ? "border-warning text-warning"
+                      : "border-muted text-muted-foreground"
+                  }`}
+                >
+                  {selectedMaterial.urgency}
+                </Badge>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Category</span>
+                <span>{selectedMaterial.category}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Supplier</span>
+                <span>{selectedMaterial.supplier}</span>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
