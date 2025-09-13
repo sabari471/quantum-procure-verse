@@ -43,7 +43,7 @@ const Login = () => {
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-primary rounded-2xl shadow-glow mb-4">
               <Building2 className="w-8 h-8 text-primary-foreground" />
             </div>
-            <h1 className="text-3xl font-bold gradient-text mb-2">ProcurementAi</h1>
+            <h1 className="text-3xl font-bold gradient-text mb-2">Procurement-Ai</h1>
             <p className="text-muted-foreground">Advanced Procurement Management Platform</p>
           </motion.div>
 

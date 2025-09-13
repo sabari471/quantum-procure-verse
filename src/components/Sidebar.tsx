@@ -45,7 +45,7 @@ const Sidebar = () => {
             <Building2 className="w-6 h-6 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold gradient-text">ProcureNext</h1>
+            <h1 className="text-xl font-bold gradient-text">Procurement-Ai</h1>
             <p className="text-sm text-muted-foreground capitalize">{userRole} Portal</p>
           </div>
         </motion.div>
