@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue 
 } from "@/components/ui/select";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, ScatterChart, Scatter } from "recharts";
 
 const materialData = [
   { id: 1, material: "Power Transformer 220kV", quantity: 15, unit: "Units", estimatedCost: 45000000, urgency: "High", category: "Electrical", supplier: "PowerTech Solutions" },
@@ -41,12 +41,33 @@ const costAnalysisData = [
 ];
 
 const trendData = [
-  { month: "Jan", predicted: 45000000, actual: 42000000 },
-  { month: "Feb", predicted: 52000000, actual: 48000000 },
-  { month: "Mar", predicted: 48000000, actual: 51000000 },
-  { month: "Apr", predicted: 62000000, actual: 58000000 },
-  { month: "May", predicted: 55000000, actual: 53000000 },
-  { month: "Jun", predicted: 71000000, actual: 69000000 },
+  { month: "Jan", predicted: 450, actual: 420, variance: -30 },
+  { month: "Feb", predicted: 520, actual: 480, variance: -40 },
+  { month: "Mar", predicted: 480, actual: 510, variance: 30 },
+  { month: "Apr", predicted: 620, actual: 580, variance: -40 },
+  { month: "May", predicted: 550, actual: 530, variance: -20 },
+  { month: "Jun", predicted: 710, actual: 690, variance: -20 },
+];
+
+const materialTrendData = [
+  { category: "Transformers", Q1: 45, Q2: 52, Q3: 48, Q4: 62 },
+  { category: "Cables", Q1: 125, Q2: 140, Q3: 132, Q4: 158 },
+  { category: "Switchgear", Q1: 85, Q2: 92, Q3: 88, Q4: 95 },
+  { category: "Protection", Q1: 35, Q2: 42, Q3: 38, Q4: 45 },
+];
+
+const supplierAnalysis = [
+  { supplier: "PowerTech", reliability: 95, cost: 85, delivery: 92 },
+  { supplier: "CableTech", reliability: 88, cost: 92, delivery: 89 },
+  { supplier: "SteelWorks", reliability: 90, cost: 78, delivery: 85 },
+  { supplier: "ControlSys", reliability: 96, cost: 88, delivery: 94 },
+];
+
+const costVarianceData = [
+  { material: "Transformers", budgeted: 450, forecasted: 465, variance: 15 },
+  { material: "Cables", budgeted: 125, forecasted: 118, variance: -7 },
+  { material: "Civil Works", budgeted: 87, forecasted: 92, variance: 5 },
+  { material: "Protection", budgeted: 68, forecasted: 71, variance: 3 },
 ];
 
 const MaterialForecasting = () => {
@@ -260,71 +281,109 @@ const MaterialForecasting = () => {
           </Card>
         </motion.div>
 
-        {/* Analytics Panel */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.4 }}
-          className="space-y-6"
-        >
-          {/* Cost Breakdown */}
-          <Card className="card-3d">
-            <CardHeader>
-              <CardTitle>Cost Analysis</CardTitle>
-              <CardDescription>Budget breakdown by category</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie
-                    data={costAnalysisData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={80}
-                    dataKey="cost"
-                  >
-                    {costAnalysisData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value: number) => `₹${(value / 10000000).toFixed(1)}Cr`} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="space-y-2 mt-4">
-                {costAnalysisData.map((item) => (
-                  <div key={item.category} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                      <span>{item.category}</span>
+          {/* Analytics Panel */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="space-y-6"
+          >
+            {/* Cost Breakdown */}
+            <Card className="card-3d">
+              <CardHeader>
+                <CardTitle>Cost Analysis</CardTitle>
+                <CardDescription>Budget breakdown by category</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={costAnalysisData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={80}
+                      dataKey="cost"
+                    >
+                      {costAnalysisData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value: number) => `₹${(value / 10000000).toFixed(1)}Cr`} />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="space-y-2 mt-4">
+                  {costAnalysisData.map((item) => (
+                    <div key={item.category} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                        <span>{item.category}</span>
+                      </div>
+                      <span className="font-medium">₹{(item.cost / 10000000).toFixed(1)}Cr</span>
                     </div>
-                    <span className="font-medium">₹{(item.cost / 10000000).toFixed(1)}Cr</span>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
 
-          {/* Trend Analysis */}
-          <Card className="card-3d">
-            <CardHeader>
-              <CardTitle>Prediction Accuracy</CardTitle>
-              <CardDescription>6-month forecast vs actual</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip formatter={(value: number) => `₹${(value / 10000000).toFixed(1)}Cr`} />
-                  <Bar dataKey="predicted" fill="#8B5CF6" name="Predicted" />
-                  <Bar dataKey="actual" fill="#06D6A0" name="Actual" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </motion.div>
+            {/* Prediction Accuracy */}
+            <Card className="card-3d">
+              <CardHeader>
+                <CardTitle>Prediction Accuracy</CardTitle>
+                <CardDescription>6-month forecast vs actual</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={trendData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
+                    <YAxis stroke="hsl(var(--muted-foreground))" />
+                    <Tooltip formatter={(value: number) => `₹${value}L`} />
+                    <Line type="monotone" dataKey="predicted" stroke="#3b82f6" strokeWidth={2} name="Predicted" />
+                    <Line type="monotone" dataKey="actual" stroke="#10b981" strokeWidth={2} name="Actual" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Supplier Performance */}
+            <Card className="card-3d">
+              <CardHeader>
+                <CardTitle>Supplier Performance</CardTitle>
+                <CardDescription>Multi-dimensional supplier analysis</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={250}>
+                  <ScatterChart data={supplierAnalysis}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis 
+                      dataKey="cost" 
+                      type="number" 
+                      domain={[70, 100]} 
+                      name="Cost Efficiency"
+                      stroke="hsl(var(--muted-foreground))"
+                    />
+                    <YAxis 
+                      dataKey="reliability" 
+                      type="number" 
+                      domain={[80, 100]} 
+                      name="Reliability"
+                      stroke="hsl(var(--muted-foreground))"
+                    />
+                    <Tooltip 
+                      cursor={{ strokeDasharray: '3 3' }}
+                      formatter={(value, name) => [value + '%', name]}
+                      labelFormatter={(label) => `Supplier: ${supplierAnalysis.find(s => s.cost === label)?.supplier || ''}`}
+                    />
+                    <Scatter dataKey="delivery" fill="#3b82f6" name="Delivery Performance" />
+                  </ScatterChart>
+                </ResponsiveContainer>
+                <div className="text-xs text-muted-foreground mt-2">
+                  X-axis: Cost Efficiency • Y-axis: Reliability • Bubble size: Delivery Performance
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
       </div>
     </div>
   );

@@ -85,7 +85,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <div className="dark min-h-screen">
+          <div className="light min-h-screen">
             <AnimatePresence mode="wait">
               <Routes>
                 <Route path="/login" element={<Login />} />
